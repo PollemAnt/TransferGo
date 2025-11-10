@@ -30,7 +30,7 @@ fun ConverterScreen(viewModel: ConverterViewModel = koinViewModel()) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         CurrencyRow(
-            label = "You send",
+            label = "Sending from",
             selectedCurrency = state.from,
             amount = state.amountSending,
             onCurrencySelected = viewModel::onFromCurrencySelected,
@@ -47,8 +47,8 @@ fun ConverterScreen(viewModel: ConverterViewModel = koinViewModel()) {
 
 
         CurrencyRow(
-            label = "You get",
-            selectedCurrency = state.to.toString(),
+            label = "Receiver gets",
+            selectedCurrency = state.to,
             amount = state.amountReceiving,
             onCurrencySelected = viewModel::onToCurrencySelected,
             onAmountChanged = {}

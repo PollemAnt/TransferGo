@@ -50,20 +50,23 @@ class ConverterViewModel(
             val amount = _uiState.value.amountSending.toDoubleOrNull() ?: return@launch
             val limit = SEND_LIMITS[_uiState.value.from] ?: Double.MAX_VALUE
             if (amount > limit) {
-                _uiState.value = _uiState.value.copy(error = "Limit exceeded for ${_uiState.value.from}")
+                _uiState.value =
+                    _uiState.value.copy(error = "Limit exceeded for ${_uiState.value.from}")
                 return@launch
             }
             when (val result = repository.convert(_uiState.value.from, _uiState.value.to, amount)) {
-                is FxResult.Success ->{
-                    val (rate, converted) = result.data
+                is FxResult.Success -> {
 
                     _uiState.value = _uiState.value.copy(
-                    rate = rate,
-                    amountReceiving = converted.toString(),
-                    error = null
-                )
+                        rate = result.data.first,
+                        amountReceiving = "%.2f".format(result.data.second),
+                        error = null,
+                    )
                 }
-                is FxResult.Error -> _uiState.value = _uiState.value.copy(error = "Conversion failed")
+
+                is FxResult.Error -> {
+                    _uiState.value = _uiState.value.copy(error = "Conversion failed")
+                }
             }
         }
     }
