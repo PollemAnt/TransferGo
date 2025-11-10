@@ -30,6 +30,11 @@ class ConverterViewModel(
 
     private var job: Job? = null
 
+
+    init {
+        triggerConversion()
+    }
+
     fun onAmountChanged(newAmount: String) {
         _uiState.value = _uiState.value.copy(amountSending = newAmount)
         triggerConversion()
