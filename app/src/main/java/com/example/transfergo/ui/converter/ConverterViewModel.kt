@@ -9,6 +9,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 data class ConverterUiState(
@@ -19,7 +20,6 @@ data class ConverterUiState(
     val rate: Double = 0.0,
     val error: String? = null
 )
-
 
 
 class ConverterViewModel(
@@ -71,13 +71,25 @@ class ConverterViewModel(
         }
     }
 
-    fun onFromCurrencySelected(code: String) {
-        _uiState.value = _uiState.value.copy(from = code)
-        triggerConversion()
+    fun onFromCurrencySelected(newCurrency: String, currentToCurrency: String) {
+        viewModelScope.launch {
+            if (newCurrency == currentToCurrency) {
+                _uiState.update { it.copy(from = newCurrency, to = it.from) }
+            } else {
+                _uiState.update { it.copy(from = newCurrency) }
+            }
+            triggerConversion()
+        }
     }
 
-    fun onToCurrencySelected(code: String) {
-        _uiState.value = _uiState.value.copy(to = code)
-        triggerConversion()
+    fun onToCurrencySelected(newCurrency: String, currentFromCurrency: String) {
+        viewModelScope.launch {
+            if (newCurrency == currentFromCurrency) {
+                _uiState.update { it.copy(to = newCurrency, from = it.to) }
+            } else {
+                _uiState.update { it.copy(to = newCurrency) }
+            }
+            triggerConversion()
+        }
     }
 }

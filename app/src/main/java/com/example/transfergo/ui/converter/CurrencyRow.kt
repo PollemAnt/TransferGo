@@ -1,11 +1,14 @@
 package com.example.transfergo.ui.converter
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -21,6 +24,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.example.transfergo.R
@@ -33,25 +37,40 @@ fun CurrencyRow(
     onCurrencySelected: (String) -> Unit,
     onAmountChanged: (String) -> Unit
 ) {
-    val currencies = listOf("PLN", "GER", "GBP", "UAH")
+    val currencies = listOf("PLN", "EUR", "GBP", "UAH")
     var expanded by remember { mutableStateOf(false) }
 
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 8.dp),
+            .height(120.dp)
+            .background(
+                color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.1f),
+                shape = MaterialTheme.shapes.medium
+            )
+            .border(
+                width = 1.dp,
+                color = Color(0xF5B7B7B7),
+                shape = MaterialTheme.shapes.medium
+            )
+            .padding(horizontal = 16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Box(
             modifier = Modifier
-                .width(110.dp)
+                .width(120.dp)
+                .height(80.dp)
+                .background(
+                    color = MaterialTheme.colorScheme.surface,
+                    shape = MaterialTheme.shapes.small
+                )
                 .clickable { expanded = true },
             contentAlignment = Alignment.Center
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 val flagRes = when (selectedCurrency) {
                     "PLN" -> R.drawable.flag_pl
-                    "GER" -> R.drawable.flag_de
+                    "EUR" -> R.drawable.flag_de
                     "GBP" -> R.drawable.flag_gb
                     "UAH" -> R.drawable.flag_ua
                     else -> R.drawable.flag_placeholder
@@ -61,20 +80,31 @@ fun CurrencyRow(
                     painter = painterResource(flagRes),
                     contentDescription = selectedCurrency,
                     modifier = Modifier
-                        .size(32.dp)
-                        .padding(end = 6.dp)
+                        .size(56.dp)
+                        .padding(end = 8.dp)
                 )
 
-                Text(selectedCurrency, style = MaterialTheme.typography.titleMedium)
+                Text(
+                    text = selectedCurrency,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
 
             DropdownMenu(
                 expanded = expanded,
                 onDismissRequest = { expanded = false }
             ) {
-                currencies.filter { it != selectedCurrency }.forEach { currency ->
+                currencies.forEach { currency ->
+
                     DropdownMenuItem(
-                        text = { Text(currency) },
+                        text = {
+                            Text(
+                                text = currency,
+                                style = MaterialTheme.typography.labelLarge,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        },
                         onClick = {
                             onCurrencySelected(currency)
                             expanded = false
@@ -89,8 +119,14 @@ fun CurrencyRow(
         OutlinedTextField(
             value = amount,
             onValueChange = onAmountChanged,
-            label = { Text(label) },
-            modifier = Modifier.weight(1f)
+            label = {
+                Text(
+                    text = label,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.outline
+                )
+            },
+            modifier = Modifier.weight(1f),
         )
     }
 }
