@@ -68,7 +68,7 @@ fun ConverterScreen(viewModel: ConverterViewModel = koinViewModel()) {
             }
         }
 
-        InformationPanel(
+        ConversionDetails(
             viewModel = viewModel,
             state = state,
             modifier = Modifier.align(Alignment.Center)
@@ -77,7 +77,7 @@ fun ConverterScreen(viewModel: ConverterViewModel = koinViewModel()) {
 }
 
 @Composable
-private fun InformationPanel(
+private fun ConversionDetails(
     viewModel: ConverterViewModel,
     state: ConverterUiState,
     modifier: Modifier = Modifier
@@ -88,16 +88,7 @@ private fun InformationPanel(
             .height(120.dp)
     ) {
 
-        Image(
-            painter = painterResource(id = R.drawable.reverse_button_foreground),
-            contentDescription = "Swap currencies",
-            modifier = Modifier
-                .offset(x = 16.dp)
-                .size(64.dp)
-                .clickable { viewModel.onSwap() }
-                .padding(8.dp)
-                .align(Alignment.CenterStart)
-        )
+        SwapButton(viewModel)
 
         Row(
             modifier = Modifier
@@ -112,13 +103,32 @@ private fun InformationPanel(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {
-            if (state.rate > 0) {
-                Text(
-                    text = "1 ${state.from} = ${"%.3f".format(state.rate)} ${state.to}",
-                    style = MaterialTheme.typography.bodyLarge,
-                    color =Color(0xFFF1F1F1)
-                )
-            }
+            ExchangeRateDisplay(state)
         }
     }
+}
+
+@Composable
+private fun ExchangeRateDisplay(state: ConverterUiState) {
+    if (state.rate > 0) {
+        Text(
+            text = "1 ${state.from} = ${"%.3f".format(state.rate)} ${state.to}",
+            style = MaterialTheme.typography.bodyLarge,
+            color = Color(0xFFF1F1F1)
+        )
+    }
+}
+
+@Composable
+private fun BoxScope.SwapButton(viewModel: ConverterViewModel) {
+    Image(
+        painter = painterResource(id = R.drawable.reverse_button_foreground),
+        contentDescription = "Swap currencies",
+        modifier = Modifier
+            .offset(x = 16.dp)
+            .size(64.dp)
+            .clickable { viewModel.onSwap() }
+            .padding(8.dp)
+            .align(Alignment.CenterStart)
+    )
 }
