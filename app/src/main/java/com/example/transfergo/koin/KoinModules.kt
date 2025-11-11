@@ -2,6 +2,7 @@ package com.example.transfergo.koin
 
 import com.example.transfergo.data.api.FxApi
 import com.example.transfergo.data.repository.FxRepository
+import com.example.transfergo.data.repository.Repository
 import com.example.transfergo.ui.converter.ConverterViewModel
 import okhttp3.logging.HttpLoggingInterceptor
 import okhttp3.OkHttpClient
@@ -10,7 +11,7 @@ import org.koin.dsl.module
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 
-val appModule = module{
+val appModule = module {
 
     single {
         val interceptor = HttpLoggingInterceptor().apply {
@@ -32,5 +33,5 @@ val appModule = module{
 
     viewModel { ConverterViewModel(get()) }
 
-    single { FxRepository(get()) }
+    single<Repository> { FxRepository(get()) }
 }

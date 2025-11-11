@@ -2,7 +2,7 @@ package com.example.transfergo.ui.converter
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.transfergo.data.repository.FxRepository
+import com.example.transfergo.data.repository.Repository
 import com.example.transfergo.util.FxResult
 import com.example.transfergo.util.SEND_LIMITS
 import kotlinx.coroutines.Job
@@ -23,7 +23,7 @@ data class ConverterUiState(
 
 
 class ConverterViewModel(
-    private val repository: FxRepository
+    private val repository: Repository
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(ConverterUiState())
     val uiState = _uiState.asStateFlow()
@@ -78,7 +78,7 @@ class ConverterViewModel(
 
                     _uiState.value = _uiState.value.copy(
                         rate = result.data.first,
-                        amountReceiving = "%.2f".format(result.data.second),
+                        amountReceiving = "%.2f".format(result.data.second).replace(',', '.'),
                         error = null,
                     )
                 }
