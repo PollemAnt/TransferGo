@@ -28,6 +28,11 @@ fun ConverterScreen(viewModel: ConverterViewModel = koinViewModel()) {
 
     val state by viewModel.uiState.collectAsState()
 
+    state.error?.let {
+        Spacer(Modifier.height(16.dp))
+        Text(it, color = MaterialTheme.colorScheme.error,style = MaterialTheme.typography.bodyLarge)
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -43,11 +48,11 @@ fun ConverterScreen(viewModel: ConverterViewModel = koinViewModel()) {
             CurrencyRow(
                 label = "Sending from",
                 selectedCurrency = state.from,
-                amount = state.amountSending,
+                amount = state.amountSending.replace(',', '.'),
                 onCurrencySelected = { newCurrency ->
                     viewModel.onFromCurrencySelected(newCurrency, state.to)
                 },
-                onAmountChanged = viewModel::onAmountChanged
+                onAmountChanged = viewModel::onFromAmountChanged
             )
 
             Spacer(Modifier.height(8.dp))
@@ -55,17 +60,12 @@ fun ConverterScreen(viewModel: ConverterViewModel = koinViewModel()) {
             CurrencyRow(
                 label = "Receiver gets",
                 selectedCurrency = state.to,
-                amount = state.amountReceiving,
+                amount = state.amountReceiving.replace(',', '.'),
                 onCurrencySelected = { newCurrency ->
                     viewModel.onToCurrencySelected(newCurrency, state.from)
                 },
-                onAmountChanged = {}
+                onAmountChanged = viewModel::onToAmountChanged
             )
-
-            state.error?.let {
-                Spacer(Modifier.height(16.dp))
-                Text(it, color = MaterialTheme.colorScheme.error,style = MaterialTheme.typography.bodyLarge)
-            }
         }
 
         ConversionDetails(
@@ -112,7 +112,7 @@ private fun ConversionDetails(
 private fun ExchangeRateDisplay(state: ConverterUiState) {
     if (state.rate > 0) {
         Text(
-            text = "1 ${state.from} = ${"%.3f".format(state.rate)} ${state.to}",
+            text = "1 ${state.from} = ${"%.2f".format(state.rate).replace(',', '.')} ${state.to}",
             style = MaterialTheme.typography.bodyLarge,
             color = Color(0xFFF1F1F1)
         )

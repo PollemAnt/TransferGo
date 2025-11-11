@@ -29,30 +29,44 @@ class ConverterViewModel(
     val uiState = _uiState.asStateFlow()
 
     private var job: Job? = null
-
+    private var isFromAmountChanging = true
 
     init {
         triggerConversion()
     }
 
-    fun onAmountChanged(newAmount: String) {
-        _uiState.value = _uiState.value.copy(amountSending = newAmount)
+    fun onFromAmountChanged(newAmount: String) {
+        val normalizedAmount = newAmount.replace(',', '.')
+        isFromAmountChanging = true
+        _uiState.value = _uiState.value.copy(amountSending = normalizedAmount)
+        triggerConversion()
+    }
+
+    fun onToAmountChanged(newAmount: String) {
+        val normalizedAmount = newAmount.replace(',', '.')
+        isFromAmountChanging = false
+        _uiState.value = _uiState.value.copy(amountReceiving = normalizedAmount)
         triggerConversion()
     }
 
     fun onSwap() {
-        _uiState.value = _uiState.value.copy(
-            from = _uiState.value.to,
-            to = _uiState.value.from
-        )
-        triggerConversion()
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(
+                from = _uiState.value.to,
+                to = _uiState.value.from,
+                amountSending = _uiState.value.amountReceiving,
+                amountReceiving = _uiState.value.amountSending
+            )
+
+            triggerConversionAfterSwap()
+        }
     }
 
-    private fun triggerConversion() {
+    private fun triggerConversionAfterSwap() {
         job?.cancel()
         job = viewModelScope.launch {
-            delay(400) // debounce
-            val amount = _uiState.value.amountSending.toDoubleOrNull() ?: return@launch
+            val amount =
+                _uiState.value.amountSending.replace(',', '.').toDoubleOrNull() ?: return@launch
             val limit = SEND_LIMITS[_uiState.value.from] ?: Double.MAX_VALUE
             if (amount > limit) {
                 _uiState.value =
@@ -71,6 +85,63 @@ class ConverterViewModel(
 
                 is FxResult.Error -> {
                     _uiState.value = _uiState.value.copy(error = "Conversion failed")
+                }
+            }
+        }
+    }
+
+    private fun triggerConversion() {
+        job?.cancel()
+        job = viewModelScope.launch {
+            delay(400) // debounce
+
+            if (isFromAmountChanging) {
+                val amount = _uiState.value.amountSending.toDoubleOrNull() ?: return@launch
+                val limit = SEND_LIMITS[_uiState.value.from] ?: Double.MAX_VALUE
+                if (amount > limit) {
+                    _uiState.value =
+                        _uiState.value.copy(error = "Limit exceeded for ${_uiState.value.from}")
+                    return@launch
+                }
+                when (val result =
+                    repository.convert(_uiState.value.from, _uiState.value.to, amount)) {
+                    is FxResult.Success -> {
+
+                        _uiState.value = _uiState.value.copy(
+                            rate = result.data.first.toString().replace(',', '.').toDouble(),
+                            amountReceiving = "%.2f".format(result.data.second).replace(',', '.'),
+                            error = null,
+                        )
+                    }
+
+                    is FxResult.Error -> {
+
+                        _uiState.value = _uiState.value.copy(error = "Conversion failed")
+                    }
+                }
+            } else {
+                val amount = _uiState.value.amountReceiving.toDoubleOrNull() ?: return@launch
+                when (val result =
+                    repository.convert(_uiState.value.to, _uiState.value.from, amount)) {
+                    is FxResult.Success -> {
+
+                        val convertedAmount = result.data.second
+                        val limit = SEND_LIMITS[_uiState.value.from] ?: Double.MAX_VALUE
+                        if (convertedAmount > limit) {
+                            _uiState.value =
+                                _uiState.value.copy(error = "Limit exceeded for ${_uiState.value.from}")
+                            return@launch
+                        }
+                        _uiState.value = _uiState.value.copy(
+                            amountSending = "%.2f".format(convertedAmount),
+                            error = null,
+                        )
+                    }
+
+                    is FxResult.Error -> {
+
+                        _uiState.value = _uiState.value.copy(error = "Conversion failed")
+                    }
                 }
             }
         }
