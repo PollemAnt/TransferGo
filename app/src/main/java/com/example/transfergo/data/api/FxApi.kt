@@ -1,6 +1,6 @@
 package com.example.transfergo.data.api
 
-import com.example.transfergo.data.repository.FxResponse
+import com.example.transfergo.domain.model.FxResponse
 import retrofit2.http.GET
 import retrofit2.http.Query
 
