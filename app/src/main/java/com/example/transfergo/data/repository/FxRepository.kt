@@ -21,10 +21,3 @@ interface Repository {
     suspend fun convert(from: String, to: String, amount: Double): FxResult<Pair<Double, Double>>
 }
 
-data class FxResponse(
-    val from: String,
-    val to: String,
-    val rate: Double,
-    val fromAmount: Double,
-    val toAmount: Double
-)
