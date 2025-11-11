@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
@@ -26,8 +27,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.example.transfergo.R
+import com.example.transfergo.util.SUPPORTED_CURRENCIES
 
 @Composable
 fun CurrencyRow(
@@ -37,7 +41,6 @@ fun CurrencyRow(
     onCurrencySelected: (String) -> Unit,
     onAmountChanged: (String) -> Unit
 ) {
-    val currencies = listOf("PLN", "EUR", "GBP", "UAH")
     var expanded by remember { mutableStateOf(false) }
 
     Row(
@@ -95,7 +98,7 @@ fun CurrencyRow(
                 expanded = expanded,
                 onDismissRequest = { expanded = false }
             ) {
-                currencies.forEach { currency ->
+                SUPPORTED_CURRENCIES.forEach { currency ->
 
                     DropdownMenuItem(
                         text = {
@@ -118,7 +121,9 @@ fun CurrencyRow(
 
         OutlinedTextField(
             value = amount,
-            onValueChange = onAmountChanged,
+            onValueChange = {
+                onAmountChanged(it)
+            },
             label = {
                 Text(
                     text = label,
@@ -127,6 +132,10 @@ fun CurrencyRow(
                 )
             },
             modifier = Modifier.weight(1f),
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Decimal,
+                imeAction = ImeAction.Done
+            )
         )
     }
 }
