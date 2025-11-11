@@ -84,7 +84,7 @@ class ConverterViewModel(
                 }
 
                 is FxResult.Error -> {
-                    _uiState.value = _uiState.value.copy(error = "Conversion failed")
+                    _uiState.value = _uiState.value.copy(error = result.error)
                 }
             }
         }
@@ -116,7 +116,7 @@ class ConverterViewModel(
 
                     is FxResult.Error -> {
 
-                        _uiState.value = _uiState.value.copy(error = "Conversion failed")
+                        _uiState.value = _uiState.value.copy(error = result.error)
                     }
                 }
             } else {
@@ -140,7 +140,7 @@ class ConverterViewModel(
 
                     is FxResult.Error -> {
 
-                        _uiState.value = _uiState.value.copy(error = "Conversion failed")
+                        _uiState.value = _uiState.value.copy(error = result.error)
                     }
                 }
             }

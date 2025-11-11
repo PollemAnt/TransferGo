@@ -3,76 +3,100 @@ package com.example.transfergo.ui.converter
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.Blue
 import androidx.compose.ui.res.painterResource
-import org.koin.androidx.compose.koinViewModel
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import com.example.transfergo.R
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun ConverterScreen(viewModel: ConverterViewModel = koinViewModel()) {
 
     val state by viewModel.uiState.collectAsState()
 
-    state.error?.let {
-        Spacer(Modifier.height(16.dp))
-        Text(it, color = MaterialTheme.colorScheme.error,style = MaterialTheme.typography.bodyLarge)
-    }
-
-    Box(
+    Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(32.dp)
+            .padding(top = 64.dp, start = 16.dp, end = 16.dp)
     ) {
-        Column(
+        Box(
             modifier = Modifier
-                .fillMaxSize()
-                .align(Alignment.Center),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+                .fillMaxWidth()
+                .wrapContentHeight()
+                .padding(8.dp)
         ) {
-            CurrencyRow(
-                label = "Sending from",
-                selectedCurrency = state.from,
-                amount = state.amountSending.replace(',', '.'),
-                onCurrencySelected = { newCurrency ->
-                    viewModel.onFromCurrencySelected(newCurrency, state.to)
-                },
-                onAmountChanged = viewModel::onFromAmountChanged
-            )
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.Center),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                CurrencyRow(
+                    label = "Sending from",
+                    selectedCurrency = state.from,
+                    amount = state.amountSending.replace(',', '.'),
+                    onCurrencySelected = { newCurrency ->
+                        viewModel.onFromCurrencySelected(newCurrency, state.to)
+                    },
+                    onAmountChanged = viewModel::onFromAmountChanged
+                )
 
-            Spacer(Modifier.height(8.dp))
+                Spacer(Modifier.height(8.dp))
 
-            CurrencyRow(
-                label = "Receiver gets",
-                selectedCurrency = state.to,
-                amount = state.amountReceiving.replace(',', '.'),
-                onCurrencySelected = { newCurrency ->
-                    viewModel.onToCurrencySelected(newCurrency, state.from)
-                },
-                onAmountChanged = viewModel::onToAmountChanged
+                CurrencyRow(
+                    label = "Receiver gets",
+                    selectedCurrency = state.to,
+                    amount = state.amountReceiving.replace(',', '.'),
+                    onCurrencySelected = { newCurrency ->
+                        viewModel.onToCurrencySelected(newCurrency, state.from)
+                    },
+                    onAmountChanged = viewModel::onToAmountChanged
+                )
+            }
+
+            ConversionDetails(
+                viewModel = viewModel,
+                state = state,
+                modifier = Modifier.align(Alignment.Center)
             )
         }
+        ErrorMessage(state)
 
-        ConversionDetails(
-            viewModel = viewModel,
-            state = state,
-            modifier = Modifier.align(Alignment.Center)
-        )
+        Spacer(Modifier.weight(1f))
+    }
+}
+
+@Composable
+private fun ErrorMessage(state: ConverterUiState) {
+    state.error?.let { errorMessage ->
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    color = MaterialTheme.colorScheme.error.copy(alpha = 0.9f),
+                    shape = RoundedCornerShape(12.dp)
+                )
+                .padding(12.dp)
+                .padding(horizontal = 16.dp)
+        ) {
+            Text(
+                text = errorMessage,
+                color = Color.White,
+                style = MaterialTheme.typography.bodyLarge,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.align(Alignment.Center)
+            )
+        }
     }
 }
 
