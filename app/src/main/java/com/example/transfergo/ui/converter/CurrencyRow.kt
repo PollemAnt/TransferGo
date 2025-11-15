@@ -121,8 +121,10 @@ fun CurrencyRow(
 
         OutlinedTextField(
             value = amount,
-            onValueChange = {
-                onAmountChanged(it)
+            onValueChange = { newValue ->
+                if (isValidDecimalInput(newValue)) {
+            onAmountChanged(newValue)
+        }
             },
             label = {
                 Text(
@@ -138,5 +140,17 @@ fun CurrencyRow(
             )
         )
     }
+}
+
+private fun isValidDecimalInput(input: String): Boolean {
+    if (input.isEmpty()) return true
+    val dotCount = input.count { it == '.' }
+    val containsOnlyDigitsAndDot = input.all { it.isDigit() || it == '.' }
+    if (dotCount > 1) return false
+    if (!containsOnlyDigitsAndDot) return false
+    if (input.startsWith('.')) return false
+
+    return true
+
 }
 
