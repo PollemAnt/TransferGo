@@ -70,15 +70,15 @@ fun ConverterScreen(viewModel: ConverterViewModel = koinViewModel()) {
                 modifier = Modifier.align(Alignment.Center)
             )
         }
-        ErrorMessage(state)
+        ErrorMessage(state.error)
 
         Spacer(Modifier.weight(1f))
     }
 }
 
 @Composable
-private fun ErrorMessage(state: ConverterUiState) {
-    state.error?.let { errorMessage ->
+private fun ErrorMessage(errorMessage: String?) {
+    errorMessage?.let {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
